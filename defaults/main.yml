@@ -1,0 +1,21 @@
+---
+# defaults file for tomcat
+
+tomcat_home: /usr/share/tomcat
+tomcat_url: http://apachemirror.wuchna.com/tomcat/tomcat-8/v8.5.43/bin/apache-tomcat-8.5.43.tar.gz
+dest_to_download_file: /opt/apache-tomcat-8.5.43.tar.gz
+symlink_src: /opt/apache-tomcat-8.5.43
+symlink_path: /usr/share/tomcat
+change_ownership_path: /usr/share/tomcat/
+remove_config: /usr/share/tomcat/conf
+config_file_url_from_s3: https://s3-us-west-2.amazonaws.com/yasansible/tomcatconfig.zip
+dest_path: /usr/share/tomcat
+unarchive_src_path: /usr/share/tomcat/tomcatconfig.zip
+unarchive_dest_path: /usr/share/tomcat
+remove_meta_file: /opt/apache-tomcat-8.5.43/webapps/manager/META-INF/context.xml
+url_for_meta_file_from_s3: https://s3-us-west-2.amazonaws.com/yasansible/metacontexttomcat.zip
+dest_for_meta_file: /opt/apache-tomcat-8.5.43/webapps/manager/META-INF
+unarchive_the_meta_file_src: /opt/apache-tomcat-8.5.43/webapps/manager/META-INF/metacontexttomcat.zip
+unarchive_the_meta_file_dest: /opt/apache-tomcat-8.5.43/webapps/manager/META-INF
+dir_to_start_tomcat: /opt/apache-tomcat-8.5.43/bin
+tomcat_port: 9090

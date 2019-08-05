@@ -1,0 +1,66 @@
+---
+# tasks file for tomcat
+
+
+- name: add group "tomcat"
+  group: name=tomcat
+
+- name: add user "tomcat"
+  user: name=tomcat group=tomcat home="{{ tomcat_home }}" createhome=no
+  become: True
+  become_method: sudo
+
+- block: 
+    - name: Download Tomcat
+      get_url: url="{{ tomcat_url }}" dest="{{ dest_to_download_file }}"
+
+  rescue:
+  - debug: msg="Tomcat download failed due to error in the url" 
+  - debug: msg="Tomcat download and installation failed"
+   
+- name: Extract archive
+  command: chdir=/usr/share /bin/tar xvf /opt/apache-tomcat-8.5.43.tar.gz -C /opt/ creates=/opt/apache-tomcat-8.5.43
+
+- name: Symlink install directory
+  file: src="{{ symlink_src }}" path="{{ symlink_path }}" state=link
+
+- name: Change ownership of Tomcat installation
+  file: path="{{ change_ownership_path }}" owner=tomcat group=tomcat state=directory recurse=yes
+
+- name: remove the config folder
+  shell: rm -rf "{{ remove_config }}"
+
+- name: Download the tomcat config file from s3 bucket
+  get_url:
+    url: "{{ config_file_url_from_s3 }}"
+    dest: "{{ dest_path }}"
+
+- name: Unarchive the config zip file in the same folder
+  unarchive:
+    src: "{{ unarchive_src_path }}"
+    dest: "{{ unarchive_dest_path }}"
+    remote_src: yes
+
+- name: remove the meta context file
+  shell: rm -rf "{{ remove_meta_file }}"
+
+- name: Download the meta context tomcat file from s3 bucket
+  get_url:
+    url: "{{ url_for_meta_file_from_s3 }}"
+    dest: "{{ dest_for_meta_file }}"
+
+- name: Unarchive the context zip file in the same folder
+  unarchive:
+    src: "{{ unarchive_the_meta_file_src }}"
+    dest: "{{ unarchive_the_meta_file_dest }}"
+    remote_src: yes
+
+- name: Run Tomcat
+  shell: ./startup.sh
+  args:
+    chdir: "{{ dir_to_start_tomcat }}"
+
+- name: wait for tomcat to start
+  wait_for: port="{{ tomcat_port }}" delay=3 timeout=20
+
+- debug: msg="Tomcat is up and running"
